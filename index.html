@@ -23,6 +23,7 @@
             margin: 0;
             overflow: hidden;
             height: 100vh;
+            width: 100vw;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -50,16 +51,16 @@
             display: flex;
         }
 
-        /* Kertas Dokumen Terupdate */
+        /* Kertas Dokumen Modern dengan Outline Navy */
         .post-paper {
-            width: 400px;
-            min-height: 520px;
+            width: 420px;
+            min-height: 540px;
             background: var(--paper-bg);
             color: #1e293b;
             padding: 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
             border: 6px solid var(--navy-outline);
-            border-radius: 32px; /* Sudut tumpul */
+            border-radius: 32px; /* Sudut tidak lancip */
             cursor: grab;
             position: absolute;
             left: 50%;
@@ -74,16 +75,15 @@
         .post-paper:active {
             cursor: grabbing;
             z-index: 20;
-            transform: translate(-50%, -50%) scale(1.02);
-            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.6);
+            transform: translate(-50%, -50%) scale(1.05);
         }
 
-        /* Area Stempel yang Lebih Besar */
+        /* Area Kolom Stempel Besar */
         .stamp-zone {
             position: absolute;
-            bottom: 5vh;
-            width: 300px; /* Lebih lebar */
-            height: 180px; /* Lebih tinggi */
+            bottom: 40px;
+            width: 320px;
+            height: 200px;
             border: 6px dashed rgba(255,255,255,0.15);
             border-radius: 40px;
             display: flex;
@@ -91,7 +91,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 900;
-            font-size: 1.8rem;
+            font-size: 2rem;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -113,17 +113,17 @@
             background: rgba(255,255,255,0.1);
             transform: scale(1.1);
             border-color: currentColor;
-            box-shadow: 0 0 40px currentColor;
+            box-shadow: 0 0 50px rgba(255,255,255,0.1);
         }
 
         .stamp-icon {
-            font-size: 3rem;
-            margin-bottom: 8px;
+            font-size: 3.5rem;
+            margin-bottom: 10px;
         }
 
-        /* Header Birokrasi */
+        /* Header UI */
         .office-header {
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.9);
             backdrop-filter: blur(10px);
             padding: 20px 60px;
             display: flex;
@@ -131,7 +131,7 @@
             align-items: center;
             border-bottom: 2px solid rgba(255,255,255,0.1);
             width: 100%;
-            z-index: 50;
+            z-index: 100;
         }
 
         .status-badge {
@@ -139,23 +139,7 @@
             padding: 8px 20px;
             border-radius: 12px;
             font-family: 'Special Elite', cursive;
-            font-size: 1rem;
             border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* Efek Stempel */
-        .stamped-mark {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            border: 8px solid;
-            padding: 10px 25px;
-            font-size: 2.5rem;
-            font-weight: 900;
-            opacity: 0.8;
-            transform: rotate(-20deg);
-            pointer-events: none;
-            border-radius: 10px;
         }
 
     </style>
@@ -166,33 +150,30 @@
         <!-- HEADER -->
         <div class="office-header">
             <div class="flex items-center gap-6">
-                <span class="text-2xl font-black tracking-tighter text-blue-500">SOCIAL SHIELD</span>
+                <span class="text-2xl font-black text-blue-500 italic">SOCIAL SHIELD</span>
                 <span id="player-display" class="status-badge text-slate-300">PETUGAS: -</span>
             </div>
             <div class="flex items-center gap-12 font-bold">
-                <div class="text-yellow-500 text-xl">POIN: <span id="score-val" class="tabular-nums">0</span></div>
-                <div id="timer-display" class="text-red-500 text-xl font-black">JAM: <span id="time-val" class="tabular-nums">08:00</span></div>
+                <div class="text-yellow-500 text-xl">SKOR: <span id="score-val" class="tabular-nums">0</span></div>
+                <div class="text-red-500 text-xl font-black">JAM: <span id="time-val" class="tabular-nums">16:00</span></div>
             </div>
         </div>
 
         <!-- LOBBY -->
         <div id="screen-lobby" class="screen active">
-            <h1 class="text-8xl font-black mb-6 italic tracking-tighter" style="font-family: 'Special Elite';">OFFICE v.2</h1>
-            <p class="text-slate-400 mb-12 text-xl italic font-light">"Keamanan internet adalah tanggung jawab Anda."</p>
+            <h1 class="text-8xl font-black mb-6 italic" style="font-family: 'Special Elite';">BUREAUCRACY</h1>
+            <p class="text-slate-400 mb-12 text-xl italic font-light text-center">
+                Filter konten internet demi kebaikan bersama.<br>
+                Tarik dokumen ke area stempel untuk memproses.
+            </p>
             
-            <input type="text" id="name-input" placeholder="NAMA PETUGAS" class="mb-10 px-10 py-5 bg-slate-800 border-4 border-slate-700 text-white font-black text-2xl text-center w-96 rounded-2xl focus:outline-none focus:border-blue-500 transition-all">
+            <input type="text" id="name-input" placeholder="NAMA PETUGAS" class="mb-10 px-10 py-5 bg-slate-800 border-4 border-slate-700 text-white font-black text-2xl text-center w-96 rounded-2xl focus:outline-none focus:border-blue-500">
             
-            <button onclick="initGame()" class="px-20 py-5 bg-blue-600 hover:bg-blue-500 font-black text-2xl rounded-2xl shadow-2xl border-b-8 border-blue-900 transition-all active:translate-y-2 active:border-b-0">MASUK SHIFT</button>
+            <button onclick="initGame()" class="px-20 py-5 bg-blue-600 hover:bg-blue-500 font-black text-2xl rounded-2xl shadow-2xl border-b-8 border-blue-900 transition-all active:translate-y-2 active:border-b-0">MULAI SHIFT</button>
         </div>
 
         <!-- GAMEPLAY -->
         <div id="screen-game" class="screen">
-            <!-- Instruksi -->
-            <div class="absolute top-10 text-slate-500 text-lg italic pointer-events-none opacity-50">
-                Seret dokumen ke stempel bawah untuk memproses.
-            </div>
-
-            <!-- Area Drop -->
             <div id="zone-deny" class="stamp-zone stamp-deny">
                 <span class="stamp-icon">🚫</span>
                 <span>BLOKIR</span>
@@ -202,23 +183,22 @@
                 <span>SETUJU</span>
             </div>
 
-            <!-- Dokumen -->
             <div id="paper-container"></div>
         </div>
 
         <!-- RESULT -->
         <div id="screen-result" class="screen">
-            <h2 class="text-6xl font-black mb-8" style="font-family: 'Special Elite';">LAPORAN HARIAN</h2>
+            <h2 class="text-6xl font-black mb-8" style="font-family: 'Special Elite';">HASIL EVALUASI</h2>
             <div class="bg-slate-800/50 p-12 w-[500px] rounded-3xl border-4 border-slate-700 mb-12 backdrop-blur-xl">
                 <div class="space-y-6 text-2xl">
-                    <p class="flex justify-between">Total Konten: <span id="stat-total" class="font-black">0</span></p>
-                    <p class="flex justify-between text-red-400">Kesalahan: <span id="stat-wrong" class="font-black">0</span></p>
+                    <p class="flex justify-between">Konten Diperiksa: <span id="stat-total" class="font-black">0</span></p>
+                    <p class="flex justify-between text-red-400">Pelanggaran Prosedur: <span id="stat-wrong" class="font-black">0</span></p>
                     <div class="h-px bg-slate-600 my-4"></div>
-                    <p class="text-sm text-slate-400 uppercase tracking-widest">Estimasi Honorarium</p>
-                    <div class="text-6xl font-black text-green-400" id="stat-salary">Rp 0</div>
+                    <p class="text-sm text-slate-400 uppercase tracking-widest text-center">Gaji Shift Ini</p>
+                    <div class="text-6xl font-black text-green-400 text-center" id="stat-salary">Rp 0</div>
                 </div>
             </div>
-            <button onclick="location.reload()" class="px-16 py-4 bg-slate-700 hover:bg-slate-600 font-bold text-xl rounded-xl transition-all">KEMBALI KE LOBBY</button>
+            <button onclick="location.reload()" class="px-16 py-4 bg-slate-700 hover:bg-slate-600 font-bold text-xl rounded-xl">KEMBALI KE POS</button>
         </div>
     </div>
 
@@ -232,19 +212,15 @@
             { user: "Spammer_99", text: "BELI FOLLOWER MURAH! DM UNTUK HARGA TERBAIK!!!", safe: false },
             { user: "Science_Lover", text: "Teori relativitas Einstein menjelaskan tentang ruang waktu.", safe: true },
             { user: "Hacker_Z", text: "Download file ini untuk cheat game gratis. 100% work.", safe: false },
-            { user: "Meme_Lord", text: "SKIBIDI TOILET RIZZLER FANUM TAX GYATT!!!", safe: false }
+            { user: "Meme_Lord", text: "SKIBIDI TOILET RIZZLER FANUM TAX GYATT!!!", safe: false },
+            { user: "Mom_Cook", text: "Resep nasi goreng spesial untuk sarapan anak.", safe: true }
         ];
 
-        let score = 0;
-        let wrong = 0;
-        let total = 0;
-        let timeLeft = 60;
-        let isDragging = false;
-        let currentPaper = null;
-        let startX, startY;
+        let score = 0, wrong = 0, total = 0, timeLeft = 60;
+        let isDragging = false, currentPaper = null, startX, startY;
 
         function initGame() {
-            const name = document.getElementById('name-input').value || "ANONIM";
+            const name = document.getElementById('name-input').value || "PETUGAS";
             document.getElementById('player-display').innerText = "PETUGAS: " + name.toUpperCase();
             document.getElementById('screen-lobby').classList.remove('active');
             document.getElementById('screen-game').classList.add('active');
@@ -252,51 +228,40 @@
             spawnPaper();
             const timer = setInterval(() => {
                 timeLeft--;
-                const seconds = timeLeft % 60;
-                document.getElementById('time-val').innerText = `16:${seconds < 10 ? '0' + seconds : seconds}`;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    showResult();
-                }
+                const sec = timeLeft % 60;
+                document.getElementById('time-val').innerText = `16:${sec < 10 ? '0' + sec : sec}`;
+                if (timeLeft <= 0) { clearInterval(timer); showResult(); }
             }, 1000);
         }
 
         function spawnPaper() {
             const container = document.getElementById('paper-container');
             container.innerHTML = '';
-            
             const data = database[Math.floor(Math.random() * database.length)];
             const paper = document.createElement('div');
             paper.className = 'post-paper';
-            paper.id = 'active-paper';
             paper.dataset.safe = data.safe;
             
-            // Random sedikit rotasi agar tidak kaku
-            const randomRot = (Math.random() * 4 - 2);
-            paper.style.transform = `translate(-50%, -50%) rotate(${randomRot}deg)`;
-            
             paper.innerHTML = `
-                <div class="flex justify-between items-center border-b-4 border-slate-200 mb-6 pb-2">
-                    <span class="text-xs font-bold opacity-30">TYPE: FEED_DOC_V2</span>
-                    <span class="text-xs font-bold opacity-30">ID: #${Math.floor(Math.random()*9000+1000)}</span>
+                <div class="flex justify-between items-center border-b-4 border-slate-200 mb-8 pb-2">
+                    <span class="text-xs font-bold opacity-30">SOCIAL_FEED_V4</span>
+                    <span class="text-xs font-bold opacity-30">#${Math.floor(Math.random()*9000+1000)}</span>
                 </div>
-                <div class="mb-6">
-                    <div class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Pengirim Data</div>
+                <div class="mb-8">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Pengirim</div>
                     <div class="text-2xl font-bold border-b border-slate-100 pb-2">${data.user}</div>
                 </div>
-                <div class="mb-10">
-                    <div class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Transkrip Konten</div>
-                    <div class="text-2xl leading-snug italic">"${data.text}"</div>
+                <div class="mb-12">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Konten</div>
+                    <div class="text-3xl leading-snug italic">"${data.text}"</div>
                 </div>
-                <div class="mt-auto pt-4 border-t-2 border-slate-100 flex justify-center">
-                    <div class="px-4 py-2 border-2 border-slate-200 rounded-full text-[10px] font-black text-slate-300">WAITING FOR ACTION</div>
+                <div class="mt-auto pt-6 border-t-2 border-slate-100 flex justify-center opacity-20">
+                    <div class="text-[10px] font-black">MINISTRY OF TRUTH</div>
                 </div>
             `;
 
             container.appendChild(paper);
             currentPaper = paper;
-
             paper.addEventListener('mousedown', startDrag);
             window.addEventListener('mousemove', drag);
             window.addEventListener('mouseup', stopDrag);
@@ -311,24 +276,15 @@
 
         function drag(e) {
             if (!isDragging) return;
-            
-            const x = e.clientX - startX;
-            const y = e.clientY - startY;
-            
-            currentPaper.style.left = x + 'px';
-            currentPaper.style.top = y + 'px';
+            currentPaper.style.left = (e.clientX - startX) + 'px';
+            currentPaper.style.top = (e.clientY - startY) + 'px';
 
-            const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
-
-            // Highlight zone berdasarkan posisi (Kiri vs Kanan di area bawah)
-            if (e.clientY > screenHeight * 0.5) {
-                if (e.clientX > screenWidth * 0.6) {
+            const sw = window.innerWidth, sh = window.innerHeight;
+            if (e.clientY > sh * 0.4) {
+                if (e.clientX > sw * 0.6) {
                     document.getElementById('zone-approve').classList.add('zone-highlight');
-                    document.getElementById('zone-deny').classList.remove('zone-highlight');
-                } else if (e.clientX < screenWidth * 0.4) {
+                } else if (e.clientX < sw * 0.4) {
                     document.getElementById('zone-deny').classList.add('zone-highlight');
-                    document.getElementById('zone-approve').classList.remove('zone-highlight');
                 } else {
                     document.querySelectorAll('.stamp-zone').forEach(z => z.classList.remove('zone-highlight'));
                 }
@@ -338,55 +294,36 @@
         function stopDrag(e) {
             if (!isDragging) return;
             isDragging = false;
-            
-            const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
+            const sw = window.innerWidth, sh = window.innerHeight;
             const isSafe = currentPaper.dataset.safe === "true";
             
-            if (e.clientY > screenHeight * 0.5) {
-                if (e.clientX > screenWidth * 0.6) {
-                    processResult(isSafe === true);
-                } else if (e.clientX < screenWidth * 0.4) {
-                    processResult(isSafe === false);
-                } else {
-                    resetPaper();
-                }
-            } else {
-                resetPaper();
-            }
+            if (e.clientY > sh * 0.4) {
+                if (e.clientX > sw * 0.6) processResult(isSafe === true);
+                else if (e.clientX < sw * 0.4) processResult(isSafe === false);
+                else resetPaper();
+            } else resetPaper();
             
             document.querySelectorAll('.stamp-zone').forEach(z => z.classList.remove('zone-highlight'));
         }
 
         function resetPaper() {
             currentPaper.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-            currentPaper.style.left = '50%';
-            currentPaper.style.top = '45%';
+            currentPaper.style.left = '50%'; currentPaper.style.top = '45%';
         }
 
         function processResult(correct) {
             total++;
-            if (correct) {
-                score += 100;
-            } else {
-                wrong++;
-                score = Math.max(0, score - 50);
-            }
-            
+            if (correct) score += 100; else { wrong++; score = Math.max(0, score - 50); }
             document.getElementById('score-val').innerText = score;
-            
-            // Efek kertas terbang keluar
             currentPaper.style.transition = 'all 0.4s ease-in';
-            currentPaper.style.transform = `translate(-50%, 150%) rotate(${Math.random()*40-20}deg)`;
+            currentPaper.style.transform = `translate(-50%, 150%)`;
             currentPaper.style.opacity = '0';
-            
             setTimeout(spawnPaper, 400);
         }
 
         function showResult() {
             document.getElementById('screen-game').classList.remove('active');
             document.getElementById('screen-result').classList.add('active');
-            
             document.getElementById('stat-total').innerText = total;
             document.getElementById('stat-wrong').innerText = wrong;
             document.getElementById('stat-salary').innerText = "Rp " + (score * 1000).toLocaleString('id-ID');
