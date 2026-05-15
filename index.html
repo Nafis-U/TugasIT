@@ -3,293 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Shield: Future Mod</title>
+    <title>Social Shield: Deep Analysis</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=JetBrains+Mono:wght@500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
         
         :root {
-            --bg-dark: #020617;
-            --accent-blue: #3b82f6;
-            --accent-red: #ef4444;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg: #0a0a0c;
+            --primary: #6366f1;
+            --danger: #f43f5e;
+            --success: #10b981;
+            --surface: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-dark);
-            color: #f8fafc;
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg);
+            color: #e2e8f0;
             margin: 0;
             overflow: hidden;
             height: 100vh;
         }
 
-        /* Container Utama */
-        .dashboard {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
+        /* UI Glow */
+        .glow-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 80%);
+            pointer-events: none;
         }
 
-        /* Kartu Konten Modern */
-        .content-card {
-            width: 500px;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 2px solid var(--accent-blue);
-            border-radius: 40px;
-            padding: 48px;
-            box-shadow: 0 0 80px rgba(59, 130, 246, 0.15);
+        /* Glass Card */
+        .analysis-card {
+            width: 550px;
+            background: var(--surface);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Scanner Line */
+        .scanner-line {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+            animation: scan 3s linear infinite;
+            opacity: 0.5;
+            pointer-events: none;
         }
 
-        /* Kata Terlarang (Highlight) */
-        .term {
-            color: #94a3b8;
-            padding: 2px 6px;
-            border-radius: 8px;
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+
+        /* Status Lights */
+        .status-light {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: #334155;
+            transition: all 0.3s;
+        }
+        .light-red { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
+        .light-green { background: var(--success); box-shadow: 0 0 10px var(--success); }
+
+        /* Content Text Analysis */
+        .word-token {
+            display: inline-block;
+            padding: 2px 4px;
+            margin: 0 1px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s;
-            border: 1px solid transparent;
-            font-weight: 700;
         }
-
-        .term:hover {
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-            background: rgba(59, 130, 246, 0.1);
-        }
-
-        .term.detected {
-            background: var(--accent-red);
-            color: white;
-            border-color: var(--accent-red);
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        .word-token:hover { background: rgba(255,255,255,0.1); }
+        .word-token.flagged {
+            color: var(--danger);
+            background: rgba(244, 63, 94, 0.15);
             text-decoration: line-through;
         }
 
-        /* Tombol Aksi */
-        .action-zone {
-            position: absolute;
-            bottom: 60px;
-            width: 320px;
-            height: 120px;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: 2px;
+        /* Action Buttons */
+        .btn-action {
+            padding: 16px 32px;
+            border-radius: 16px;
+            font-weight: 700;
             transition: all 0.3s;
-            opacity: 0.1;
+            opacity: 0.3;
             pointer-events: none;
-            border: 2px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
+        .btn-active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .btn-active:hover { transform: translateY(-4px); }
 
-        .zone-active {
-            opacity: 1;
-            pointer-events: auto;
-            cursor: pointer;
+        /* CRT Effect */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
         }
-
-        .btn-deny {
-            left: 10%;
-            background: rgba(239, 68, 68, 0.1);
-            border-color: var(--accent-red);
-            color: var(--accent-red);
-        }
-
-        .btn-approve {
-            right: 10%;
-            background: rgba(34, 197, 94, 0.1);
-            border-color: #22c55e;
-            color: #22c55e;
-        }
-
-        .zone-active:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px -10px currentColor;
-        }
-
-        /* Animasi Shake untuk Error */
-        @keyframes shake {
-            0%, 100% { transform: translate(-50%, -50%); }
-            25% { transform: translate(-52%, -50%); }
-            75% { transform: translate(-48%, -50%); }
-        }
-
-        .error-shake { animation: shake 0.2s ease-in-out 2; }
-
     </style>
 </head>
 <body>
+    <div class="glow-overlay"></div>
 
-    <div class="dashboard">
+    <div class="dashboard flex flex-col h-screen p-8">
         <!-- HEADER -->
-        <header class="p-8 flex justify-between items-center border-b border-white/5">
-            <div>
-                <h1 class="text-xl font-extrabold tracking-tighter text-blue-400">SHIELD//OS v2.0</h1>
-                <p class="text-xs text-slate-500 font-mono">NEURAL CONTENT MODERATOR</p>
+        <header class="flex justify-between items-center mb-12">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">ANALISIS KUALITAS KONTEN</h1>
+                    <p class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Sistem Deteksi Brainrot v3.0</p>
+                </div>
             </div>
-            <div class="flex gap-12 font-mono">
+            
+            <div class="flex gap-8 font-mono">
                 <div class="text-right">
-                    <p class="text-[10px] text-slate-500">TRUST_SCORE</p>
-                    <p id="score-val" class="text-2xl font-bold text-blue-400">000</p>
+                    <div class="text-[10px] text-slate-500 mb-1">STABILITAS_JARINGAN</div>
+                    <div id="score" class="text-xl font-bold text-indigo-400">100%</div>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] text-slate-500">SHIFT_TIMER</p>
-                    <p id="time-val" class="text-2xl font-bold text-white">00:60</p>
+                    <div class="text-[10px] text-slate-500 mb-1">MASA_TUGAS</div>
+                    <div id="timer" class="text-xl font-bold">01:00</div>
                 </div>
             </div>
         </header>
 
-        <!-- GAME AREA -->
-        <main class="flex-1 relative">
-            <div id="card-container"></div>
-
-            <!-- ACTION ZONES -->
-            <div id="btn-deny" onclick="submitDecision(false)" class="action-zone btn-deny">
-                TERMINATE
-            </div>
-            <div id="btn-approve" onclick="submitDecision(true)" class="action-zone btn-approve">
-                AUTHORIZE
-            </div>
-        </main>
-
-        <!-- LOBBY OVERLAY -->
-        <div id="lobby" class="absolute inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center p-6">
-            <div class="max-w-md w-full">
-                <h2 class="text-6xl font-extrabold mb-2 tracking-tighter italic">SCANNER.</h2>
-                <p class="text-slate-400 mb-12 text-lg">Hancurkan konten brainrot sebelum menginfeksi jaringan.</p>
+        <!-- MAIN AREA -->
+        <main class="flex-1 flex items-center justify-center relative">
+            <div class="analysis-card crt" id="card">
+                <div class="scanner-line"></div>
                 
-                <div class="space-y-4">
-                    <input type="text" id="player-name" placeholder="IDENTITAS PETUGAS" class="w-full bg-white/5 border-2 border-white/10 p-5 rounded-2xl text-xl font-bold focus:outline-none focus:border-blue-500 transition-all">
-                    <button onclick="startShift()" class="w-full bg-blue-600 hover:bg-blue-500 p-5 rounded-2xl text-xl font-extrabold transition-all">INISIASI SISTEM</button>
+                <div class="flex justify-between items-start mb-10">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div id="light-logic" class="status-light"></div>
+                            <span class="text-[10px] font-bold text-slate-400 tracking-widest">LOGIKA</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div id="light-clarity" class="status-light"></div>
+                            <span class="text-[10px] font-bold text-slate-400 tracking-widest">KEJELASAN</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div id="light-sense" class="status-light"></div>
+                            <span class="text-[10px] font-bold text-slate-400 tracking-widest">MAKNA</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] font-mono text-slate-500">USER_ID: ANONYMOUS</div>
+                        <div class="text-[10px] font-mono text-slate-500">TIMESTAMP: 2026.05.15</div>
+                    </div>
+                </div>
+
+                <div id="content-area" class="text-2xl font-medium leading-relaxed mb-12 min-h-[120px]">
+                    <!-- Konten akan dimuat di sini -->
+                </div>
+
+                <div class="flex gap-4">
+                    <button id="btn-pass" onclick="handleDecision(true)" class="btn-action flex-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        LOLOSKAN
+                    </button>
+                    <button id="btn-purge" onclick="handleDecision(false)" class="btn-action flex-1 bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                        PURGE KONTEN
+                    </button>
                 </div>
             </div>
+        </main>
+    </div>
+
+    <!-- START SCREEN -->
+    <div id="lobby" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
+        <div class="text-center max-w-lg p-8">
+            <h2 class="text-5xl font-bold mb-4 tracking-tighter">Sistem Analisis</h2>
+            <p class="text-slate-400 mb-10">Gunakan sensor untuk memeriksa logika dan makna konten. Hancurkan konten yang merusak kualitas informasi.</p>
+            <button onclick="startSession()" class="px-12 py-4 bg-indigo-600 rounded-2xl font-bold text-xl hover:bg-indigo-500 transition-all">MULAI ANALISIS</button>
         </div>
     </div>
 
     <script>
-        const brainrotTerms = ["SKIBIDI", "GYATT", "RIZZ", "FANUM", "OHIO", "SIGMA", "MEWING", "MOGGING"];
         const database = [
-            { t: "Lagi asik MEWING eh kena tagihan FANUM tax sama temen.", isRot: true },
-            { t: "Siapa sangka RIZZ dari OHIO bisa bikin geger sekelas.", isRot: true },
-            { t: "Bocah itu teriak SKIBIDI di tengah perpustakaan tadi pagi.", isRot: true },
-            { t: "Kemarin saya makan nasi padang enak sekali rasanya.", isRot: false },
-            { t: "Belajar coding itu butuh logika dan kesabaran tinggi.", isRot: false },
-            { t: "Gaya MOGGING dia bener-bener level SIGMA sejati.", isRot: true },
-            { t: "Matahari terbit dari timur dan tenggelam di barat.", isRot: false }
+            { 
+                text: "Video kucing menari dengan lagu kencang selama 10 jam tanpa henti.", 
+                logic: false, clarity: true, sense: false, isBrainrot: true 
+            },
+            { 
+                text: "Penjelasan mengenai siklus air hujan melalui diagram yang jelas.", 
+                logic: true, clarity: true, sense: true, isBrainrot: false 
+            },
+            { 
+                text: "Kompilasi orang teriak kata-kata acak dengan visual warna-warni yang menyilaukan.", 
+                logic: false, clarity: false, sense: false, isBrainrot: true 
+            },
+            { 
+                text: "Berita mengenai penemuan spesies baru di kedalaman samudera pasifik.", 
+                logic: true, clarity: true, sense: true, isBrainrot: false 
+            },
+            { 
+                text: "Video tutorial memasak martabak manis yang singkat dan informatif.", 
+                logic: true, clarity: true, sense: true, isBrainrot: false 
+            },
+            {
+                text: "Satu menit video hanya berisi gambar pisang berputar dengan suara bass kencang.",
+                logic: false, clarity: true, sense: false, isBrainrot: true
+            }
         ];
 
-        let score = 0;
+        let score = 100;
         let timeLeft = 60;
-        let detectedCount = 0;
-        let requiredInCase = 0;
-        let currentCase = null;
+        let currentItem = null;
+        let scannedWords = 0;
 
-        function startShift() {
-            const name = document.getElementById('player-name').value || "USER_1";
-            document.getElementById('lobby').style.opacity = '0';
-            setTimeout(() => document.getElementById('lobby').style.display = 'none', 500);
-            
-            spawnCase();
+        function startSession() {
+            document.getElementById('lobby').style.display = 'none';
+            loadNext();
             const timer = setInterval(() => {
                 timeLeft--;
-                document.getElementById('time-val').innerText = `00:${timeLeft < 10 ? '0'+timeLeft : timeLeft}`;
+                document.getElementById('timer').innerText = `00:${timeLeft < 10 ? '0'+timeLeft : timeLeft}`;
                 if(timeLeft <= 0) {
                     clearInterval(timer);
-                    alert("SHIFT SELESAI. Total Score: " + score);
+                    alert("SESI BERAKHIR. Stabilitas Jaringan: " + score + "%");
                     location.reload();
                 }
             }, 1000);
         }
 
-        function spawnCase() {
-            detectedCount = 0;
-            currentCase = database[Math.floor(Math.random() * database.length)];
+        function loadNext() {
+            currentItem = database[Math.floor(Math.random() * database.length)];
+            scannedWords = 0;
             
             // Reset UI
-            document.getElementById('btn-deny').classList.remove('zone-active');
-            document.getElementById('btn-approve').classList.remove('zone-active');
-            
-            // Proses Teks
-            let textHtml = currentCase.t;
-            requiredInCase = 0;
-            
-            brainrotTerms.forEach(term => {
-                const regex = new RegExp(term, 'gi');
-                if(textHtml.match(regex)) {
-                    requiredInCase++;
-                    textHtml = textHtml.replace(regex, `<span class="term" onclick="detect(this)">${term}</span>`);
-                }
-            });
+            document.querySelectorAll('.status-light').forEach(l => l.className = 'status-light');
+            document.getElementById('btn-pass').className = 'btn-action flex-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20';
+            document.getElementById('btn-purge').className = 'btn-action flex-1 bg-rose-500/10 text-rose-500 border border-rose-500/20';
 
-            const container = document.getElementById('card-container');
-            container.innerHTML = `
-                <div class="content-card" id="active-card">
-                    <div class="mb-8 flex justify-between items-center">
-                        <div class="h-2 w-12 bg-blue-500 rounded-full"></div>
-                        <div class="font-mono text-[10px] text-slate-500">REF_ID: ${Math.random().toString(36).substr(2, 9).toUpperCase()}</div>
-                    </div>
-                    <h3 class="text-3xl font-bold leading-tight tracking-tight mb-12" id="text-body">
-                        "${textHtml}"
-                    </h3>
-                    <div class="pt-6 border-t border-white/5 flex justify-between items-center">
-                        <span class="text-[10px] font-mono text-slate-500">SCAN_PROGRESS</span>
-                        <span id="prog-val" class="font-mono text-blue-400">0%</span>
-                    </div>
-                </div>
-            `;
+            const area = document.getElementById('content-area');
+            const words = currentItem.text.split(' ');
+            area.innerHTML = words.map(w => `<span class="word-token" onclick="scanToken(this)">${w}</span>`).join(' ');
+        }
 
-            // Jika konten bersih, langsung aktifkan Authorize
-            if(requiredInCase === 0) {
-                document.getElementById('btn-approve').classList.add('zone-active');
-                document.getElementById('prog-val').innerText = "CLEAN";
+        function scanToken(el) {
+            if(el.classList.contains('flagged')) return;
+            el.classList.add('flagged');
+            scannedWords++;
+
+            // Animasi deteksi acak lampu
+            if(scannedWords === 2) updateLight('light-logic', currentItem.logic);
+            if(scannedWords === 4) updateLight('light-clarity', currentItem.clarity);
+            if(scannedWords === 6 || scannedWords === wordsInArea().length) {
+                updateLight('light-sense', currentItem.sense);
+                enableButtons();
             }
         }
 
-        function detect(el) {
-            if(el.classList.contains('detected')) return;
-            
-            el.classList.add('detected');
-            detectedCount++;
-            
-            const prog = Math.round((detectedCount / requiredInCase) * 100);
-            document.getElementById('prog-val').innerText = prog + "%";
-
-            if(detectedCount >= requiredInCase) {
-                document.getElementById('btn-deny').classList.add('zone-active');
-                document.getElementById('prog-val').innerText = "INFECTED";
-                document.getElementById('prog-val').classList.replace('text-blue-400', 'text-red-500');
-            }
+        function wordsInArea() {
+            return document.querySelectorAll('.word-token');
         }
 
-        function submitDecision(isApprove) {
-            const card = document.getElementById('active-card');
+        function updateLight(id, isOk) {
+            const el = document.getElementById(id);
+            el.className = isOk ? 'status-light light-green' : 'status-light light-red';
+        }
+
+        function enableButtons() {
+            document.getElementById('btn-pass').classList.add('btn-active');
+            document.getElementById('btn-purge').classList.add('btn-active');
+        }
+
+        function handleDecision(isPass) {
+            const correct = (isPass === !currentItem.isBrainrot);
             
-            if(isApprove === !currentCase.isRot) {
-                // Jawaban Benar
-                score += 100;
-                card.style.transform = `translate(${isApprove ? '200%' : '-200%'}, -50%) rotate(${isApprove ? 20 : -20}deg)`;
-                card.style.opacity = '0';
+            if(correct) {
+                score = Math.min(100, score + 5);
             } else {
-                // Jawaban Salah
-                score = Math.max(0, score - 50);
-                card.classList.add('error-shake');
-                setTimeout(() => card.classList.remove('error-shake'), 400);
-                return; // Jangan spawn dulu, biarkan mereka perbaiki atau coba lagi
+                score = Math.max(0, score - 15);
+                // Effect Getar
+                document.getElementById('card').classList.add('animate-shake');
+                setTimeout(() => document.getElementById('card').classList.remove('animate-shake'), 500);
             }
-
-            document.getElementById('score-val').innerText = score.toString().padStart(3, '0');
-            setTimeout(spawnCase, 500);
+            
+            document.getElementById('score').innerText = score + "%";
+            
+            // Animasi Keluar
+            const card = document.getElementById('card');
+            card.style.transform = `scale(0.9) translate(${isPass ? '100px' : '-100px'}, 0)`;
+            card.style.opacity = '0';
+            
+            setTimeout(() => {
+                card.style.transform = 'translate(-50%, -50%)'; // Reset position
+                card.style.opacity = '1';
+                loadNext();
+            }, 300);
         }
     </script>
 </body>
