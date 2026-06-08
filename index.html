@@ -70,12 +70,10 @@
             margin-top: 20px;
         }
 
-        /* Kartu putih asli */
+        /* Kartu putih asli untuk konten game */
         .content-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #f1f5f9;
+            background: #ffffff;
+            color: #1e293b;
             flex: 2;
             min-height: 380px;
             border-radius: 24px;
@@ -86,6 +84,21 @@
             position: relative;
             animation: slideIn 0.3s ease-out;
             text-align: left;
+        }
+
+        /* Kartu putih khusus di Lobi */
+        .lobby-card {
+            background: #ffffff;
+            color: #1e293b;
+            border-radius: 28px;
+            padding: 48px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            animation: slideIn 0.4s ease-out;
+            border: 6px solid #e2e8f0;
         }
 
         .button-sidebar {
@@ -134,9 +147,9 @@
             border-color: #cbd5e1;
         }
 
-        /* Script buat nyetabilo kata terlarang */
+        /* Gaya Stabilo Kuning Modern saat di-highlight */
         .word-token.highlighted {
-            background-color: #fd1d1d; /* Kuning stabilo */
+            background-color: #fef08a; /* Kuning stabilo */
             color: #1e293b;
             border-color: #eab308;
             font-weight: 600;
@@ -168,7 +181,7 @@
         }
 
         .logo-glow {
-            filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.65));
+            filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.45));
         }
     </style>
 </head>
@@ -179,24 +192,28 @@
 
         <!-- LOBBY SCREEN -->
         <div id="screen-lobby" class="screen active">
-            <div class="flex flex-col md:flex-row items-center justify-between w-full max-w-6xl gap-16 text-left px-8">
-                <!-- Sisi Kiri: Logo Besar di Tengah-Tengah Judul & Subjudul -->
-                <div class="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
-                    <!-- Ikon perisai diperbesar dan diberi ruang terpusat -->
-                    <div class="mb-4 logo-glow">
-                        <svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="mx-auto md:mx-0">
+            <div class="flex flex-col md:flex-row items-center justify-between w-full max-w-6xl gap-16 px-8 text-left">
+                <!-- Sisi Kiri: Kartu Putih Melengkung Berisi Logo, Judul, dan Subjudul -->
+                <div class="flex-1 w-full lobby-card">
+                    <!-- Ikon perisai berukuran besar di atas tengah kartu -->
+                    <div class="mb-6 logo-glow">
+                        <svg width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="mx-auto">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                             <path d="M12 8v4"/>
                             <path d="M12 16h.01"/>
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-7xl font-extrabold mb-4 text-white italic tracking-tight leading-none">SOCIAL <span class="text-blue-500 font-black">SHIELD</span></h1>
-                        <p class="text-slate-400 text-2xl italic font-light leading-relaxed max-w-xl">"Menjaga Internet Tetap Sehat dari Konten Brainrot"</p>
+                        <h1 class="text-6xl font-extrabold mb-3 text-slate-800 italic tracking-tight leading-none text-center">
+                            SOCIAL <span class="text-blue-600 font-black">SHIELD</span>
+                        </h1>
+                        <p class="text-slate-500 text-xl italic font-medium leading-relaxed max-w-md text-center mt-4">
+                            "Menjaga Internet Tetap Sehat, Satu Postingan Sekaligus"
+                        </p>
                     </div>
                 </div>
 
-                <!-- Sisi Kanan: 3 Tombol Stack Vertikal Lebih Tebal -->
+                <!-- Sisi Kanan: 3 Tombol Stack Vertikal Abu-abu dan Biru Siber -->
                 <div class="flex flex-col gap-6 w-80">
                     <button onclick="startGame()" class="btn bg-blue-600 hover:bg-blue-500 py-6 rounded-2xl font-bold text-2xl shadow-xl border-b-4 border-blue-800 text-white text-center w-full">
                         MULAI SHIFT
@@ -352,7 +369,9 @@
 
         // Daftar target kata brainrot/penurunan kualitas konten secara luas
         const brainrotDictionary = [
-            "LOW-EFFORT", "BODOH", "FOLLOW", "JOGED", "JEDAG-JEDUG", "ROKOK"
+            "SKIBIDI", "GYATT", "RIZZ", "FANUM", "OHIO", "SIGMA", 
+            "MEWING", "GEGAGEDIGAGEDAGO", "RIZZLER", "BERKEDIP", "BISING",
+            "SENSATIONAL", "CEPAT", "STIMULASI", "JEDAG-JEDUG", "LOW-EFFORT"
         ];
 
         // Database konten (Macam konten yang akan diverif oleh moderator)
@@ -405,6 +424,7 @@
             document.getElementById(screenId).classList.add('active');
         }
 
+        // Kembali ke Lobby dengan membersihkan interval
         function showLobby() { 
             gameActive = false;
             if (timerInterval) clearInterval(timerInterval);
@@ -572,13 +592,12 @@
             document.getElementById('accuracy-bar').style.width = `${accuracy}%`;
             
             let performanceMsg = "";
-            if (accuracy >= 90) performanceMsg = "MISSION PASSED! GOOD PERFORM!";
-            else if (accuracy >= 70) performanceMsg = "MISSION PASSED! NICE PERFORM!";
-            else if (accuracy >= 50) performanceMsg = "MISSION PASSED, BUT LOW PERFORM.";
-            else performanceMsg = "MISSION FAILED! BRAINROT is TAKEOVER!";
+            if (accuracy >= 90) performanceMsg = "Sangat luar biasa! Internet sangat aman di tanganmu.";
+            else if (accuracy >= 70) performanceMsg = "Kerja bagus. Terus tingkatkan kewaspadaanmu.";
+            else if (accuracy >= 50) performanceMsg = "Beberapa konten berbahaya lolos. Butuh fokus lebih.";
+            else performanceMsg = "Kinerja buruk. Kamu membiarkan internet dipenuhi konten aneh.";
 
             document.getElementById('performance-stat').innerText = performanceMsg;
-
         }
     </script>
 </body>
