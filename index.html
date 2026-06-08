@@ -377,7 +377,6 @@
     </div>
 
     <script>
-
         // Daftar target kata brainrot/penurunan kualitas konten secara luas
         const brainrotDictionary = [
             "LOW-EFFORT", "BODOH", "FOLLOW", "JOGED", "JEDAG-JEDUG", "ROKOK"
@@ -408,7 +407,7 @@
             { text: "ROKOK elektrik dengan liquid dan aromah baru, cobain sensasi baru ini!", type: "BLOKIR", isBrainrot: true }
         ];
 
-        let timeLeft = 90;
+        let timeLeft = 90; // Diperbarui menjadi 90 detik
         let points = 0;
         let totalAnswered = 0;
         let correctAnswers = 0;
@@ -458,9 +457,11 @@
             // Kembalikan opacity normal jika ada
             const btnAman = document.getElementById('btn-aman');
             const btnTerbatas = document.getElementById('btn-terbatas');
-            if (btnAman && btnTerbatas) {
+            const btnBlokir = document.getElementById('btn-blokir');
+            if (btnAman && btnTerbatas && btnBlokir) {
                 btnAman.classList.remove('opacity-30', 'pointer-events-none');
                 btnTerbatas.classList.remove('opacity-30', 'pointer-events-none');
+                btnBlokir.classList.remove('opacity-30', 'pointer-events-none');
             }
         }
 
@@ -561,6 +562,7 @@
                     isPopUpActive = false;
                     document.getElementById('btn-aman').classList.remove('opacity-30', 'pointer-events-none');
                     document.getElementById('btn-terbatas').classList.remove('opacity-30', 'pointer-events-none');
+                    document.getElementById('btn-blokir').classList.remove('opacity-30', 'pointer-events-none');
                     
                     // Update kunci tombol blokir sesuai kondisi stabilo saat ini
                     updateLockStatus();
