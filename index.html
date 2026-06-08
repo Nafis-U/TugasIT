@@ -183,6 +183,17 @@
         .logo-glow {
             filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.45));
         }
+
+        /* Kelas Desain Khusus Pop-Up Acak */
+        .random-popup {
+            animation: popupReveal 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+
+        @keyframes popupReveal {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -297,7 +308,7 @@
             </div>
             
             <div class="absolute top-6 left-8 text-xl font-bold flex items-center gap-4 bg-slate-900/50 px-6 py-3 rounded-full border border-slate-700">
-                <div class="text-blue-400">⏱️ <span id="time-left">60</span>s</div>
+                <div class="text-blue-400">⏱️ <span id="time-left">90</span>s</div>
                 <div class="h-6 w-px bg-slate-700"></div>
                 <div class="text-green-400">⭐ <span id="current-points">0</span></div>
             </div>
@@ -369,9 +380,7 @@
 
         // Daftar target kata brainrot/penurunan kualitas konten secara luas
         const brainrotDictionary = [
-            "SKIBIDI", "GYATT", "RIZZ", "FANUM", "OHIO", "SIGMA", 
-            "MEWING", "GEGAGEDIGAGEDAGO", "RIZZLER", "BERKEDIP", "BISING",
-            "SENSATIONAL", "CEPAT", "STIMULASI", "JEDAG-JEDUG", "LOW-EFFORT"
+            "LOW-EFFORT", "BODOH", "FOLLOW", "JOGED", "JEDAG-JEDUG", "ROKOK"
         ];
 
         // Database konten (Macam konten yang akan diverif oleh moderator)
@@ -399,7 +408,7 @@
             { text: "ROKOK elektrik dengan liquid dan aromah baru, cobain sensasi baru ini!", type: "BLOKIR", isBrainrot: true }
         ];
 
-        let timeLeft = 60;
+        let timeLeft = 90;
         let points = 0;
         let totalAnswered = 0;
         let correctAnswers = 0;
@@ -409,6 +418,11 @@
         
         let brainrotCountInText = 0;
         let userHighlightedWords = [];
+
+        // Logika Random Event Pop-up
+        let eventTimestamps = [];
+        let activePopups = 0;
+        let isPopUpActive = false;
 
         const logoHTML = `
             <div class="flex items-center gap-2 mb-4 border-b border-slate-200 pb-3">
@@ -424,10 +438,11 @@
             document.getElementById(screenId).classList.add('active');
         }
 
-        // Kembali ke Lobby dengan membersihkan interval
+        // Kembali ke Lobby dengan membersihkan interval & sisa popup
         function showLobby() { 
             gameActive = false;
             if (timerInterval) clearInterval(timerInterval);
+            clearAllPopups();
             showScreen('screen-lobby'); 
         }
         
@@ -435,12 +450,38 @@
         
         function showCredits() { showScreen('screen-credits'); }
 
+        function clearAllPopups() {
+            isPopUpActive = false;
+            activePopups = 0;
+            document.querySelectorAll('.random-popup').forEach(p => p.remove());
+            
+            // Kembalikan opacity normal jika ada
+            const btnAman = document.getElementById('btn-aman');
+            const btnTerbatas = document.getElementById('btn-terbatas');
+            if (btnAman && btnTerbatas) {
+                btnAman.classList.remove('opacity-30', 'pointer-events-none');
+                btnTerbatas.classList.remove('opacity-30', 'pointer-events-none');
+            }
+        }
+
         function startGame() {
-            timeLeft = 60;
+            timeLeft = 90; // Atur 90 detik
             points = 0;
             totalAnswered = 0;
             correctAnswers = 0;
             gameActive = true;
+            clearAllPopups();
+
+            // Membuat 3 penanda waktu acak unik untuk event pop-up (antara detik 15 sampai 80)
+            eventTimestamps = [];
+            while (eventTimestamps.length < 3) {
+                let rTime = Math.floor(Math.random() * 65) + 15;
+                if (!eventTimestamps.includes(rTime)) {
+                    eventTimestamps.push(rTime);
+                }
+            }
+            eventTimestamps.sort((a, b) => b - a); // Urutkan dari yang terbesar
+
             updateUI();
             nextContent();
             showScreen('screen-game');
@@ -448,15 +489,90 @@
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 timeLeft -= 0.1;
+                
+                // Cek apakah detiknya cocok dengan target random event
+                const currentSecond = Math.floor(timeLeft);
+                if (eventTimestamps.includes(currentSecond)) {
+                    triggerRandomSpamEvent();
+                    // Singkirkan waktu ini dari daftar agar tidak terulang
+                    eventTimestamps = eventTimestamps.filter(t => t !== currentSecond);
+                }
+
                 if (timeLeft <= 0) endGame();
                 updateUI();
             }, 100);
         }
 
+        // Fungsi pemicu serangan spam 4 pop-up acak
+        function triggerRandomSpamEvent() {
+            isPopUpActive = true;
+            activePopups = 4;
+
+            // Kunci tombol interaksi game visual
+            document.getElementById('btn-aman').classList.add('opacity-30', 'pointer-events-none');
+            document.getElementById('btn-terbatas').classList.add('opacity-30', 'pointer-events-none');
+            document.getElementById('btn-blokir').classList.add('opacity-30', 'pointer-events-none');
+
+            // Template teks popup peringatan fiktif ramah anak
+            const popupTemplates = [
+                { title: "🚨 AD-BLOCK DETECTED", text: "Iklan mencurigakan diblokir oleh tameng keamanan siber Anda!" },
+                { title: "⚠️ CONNECTION WARNING", text: "Terjadi lonjakan lalu lintas data asing yang tidak stabil!" },
+                { title: "📁 MEMORY BUFFERING", text: "Pembersihan memori sementara (cache) sistem diperlukan!" },
+                { title: "🔥 OVERHEAT DANGER", text: "Temperatur server melonjak! Segera jalankan kipas darurat!" }
+            ];
+
+            // Pasang 4 pop-up di posisi acak di layar
+            for (let i = 0; i < 4; i++) {
+                const popup = document.createElement('div');
+                popup.id = `popup-spam-${i}`;
+                popup.className = "random-popup absolute bg-slate-900 border-2 border-red-500 rounded-2xl p-5 z-[100] w-72 text-left flex flex-col";
+                
+                // Koordinat acak aman di tengah layar agar tidak keluar viewport
+                const topPos = Math.floor(Math.random() * 45) + 15;
+                const leftPos = Math.floor(Math.random() * 45) + 15;
+                
+                popup.style.top = `${topPos}%`;
+                popup.style.left = `${leftPos}%`;
+
+                popup.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-red-500/30 pb-2 mb-3">
+                        <span class="text-xs font-black text-red-500 tracking-wider">${popupTemplates[i].title}</span>
+                        <button onclick="dismissSinglePopup(${i})" class="text-red-400 hover:text-red-300 font-bold bg-red-500/10 hover:bg-red-500/30 px-2.5 py-0.5 rounded text-sm btn">X</button>
+                    </div>
+                    <p class="text-xs text-slate-300 mb-4 leading-relaxed">${popupTemplates[i].text}</p>
+                    <button onclick="dismissSinglePopup(${i})" class="mt-auto w-full bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-2 rounded-lg btn">TUTUP PERINGATAN</button>
+                `;
+
+                document.querySelector('.game-container').appendChild(popup);
+            }
+
+            triggerFeedback("SISTEM GANGGUAN!", "#ef4444");
+        }
+
+        // Fungsi menutup satu popup spam
+        function dismissSinglePopup(index) {
+            const popup = document.getElementById(`popup-spam-${index}`);
+            if (popup) {
+                popup.remove();
+                activePopups--;
+
+                // Jika keempat popup sudah bersih, kembalikan game ke kondisi aktif
+                if (activePopups === 0) {
+                    isPopUpActive = false;
+                    document.getElementById('btn-aman').classList.remove('opacity-30', 'pointer-events-none');
+                    document.getElementById('btn-terbatas').classList.remove('opacity-30', 'pointer-events-none');
+                    
+                    // Update kunci tombol blokir sesuai kondisi stabilo saat ini
+                    updateLockStatus();
+                    triggerFeedback("SISTEM PULIH", "#4ade80");
+                }
+            }
+        }
+
         function updateUI() {
             document.getElementById('time-left').innerText = Math.max(0, Math.ceil(timeLeft));
             document.getElementById('current-points').innerText = points;
-            const progress = (timeLeft / 60) * 100;
+            const progress = (timeLeft / 90) * 100; // Proporsional terhadap 90 detik
             document.getElementById('timer-progress').style.width = progress + '%';
         }
 
@@ -499,7 +615,7 @@
         }
 
         function toggleWordHighlight(element) {
-            if (!gameActive) return;
+            if (!gameActive || isPopUpActive) return; // Kunci jika sedang ada serangan spam popup
 
             const isBrainrot = element.getAttribute('data-brainrot') === "true";
             const index = element.getAttribute('data-index');
@@ -521,6 +637,13 @@
         function updateLockStatus() {
             const statusEl = document.getElementById('detection-status');
             const btnBlokir = document.getElementById('btn-blokir');
+
+            if (isPopUpActive) {
+                statusEl.innerText = "SISTEM DOWN";
+                statusEl.className = "font-black text-red-500 animate-pulse";
+                btnBlokir.disabled = true;
+                return;
+            }
 
             if (currentContent.isBrainrot) {
                 // Cari tahu berapa kata brainrot yang sudah berhasil di-stabilo kuning oleh user
@@ -545,7 +668,7 @@
         }
 
         function judge(choice) {
-            if (!gameActive) return;
+            if (!gameActive || isPopUpActive) return; // Blokir aksi jika popup sedang menutupi layar
 
             // Pengaman: Jika konten terbukti brainrot tapi belum selesai dianalisis, halangi player memproses
             if (currentContent.isBrainrot) {
@@ -581,6 +704,7 @@
         function endGame() {
             gameActive = false;
             clearInterval(timerInterval);
+            clearAllPopups(); // Singkirkan sisa popup di akhir
             showScreen('screen-result');
 
             const accuracy = totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0;
