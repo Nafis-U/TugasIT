@@ -329,7 +329,7 @@
                     <button id="btn-terbatas" onclick="judge('TERBATAS')" class="btn bg-yellow-500 hover:bg-yellow-400 py-6 rounded-2xl font-extrabold text-xl shadow-xl border-b-4 border-yellow-700 text-slate-900 flex items-center justify-center gap-2">
                         <span>⚠️</span> TERBATAS
                     </button>
-                    <button id="btn-blokir" onclick="judge('BLOKIR')" class="btn bg-red-600 hover:bg-red-500 py-6 rounded-2xl font-extrabold text-xl shadow-xl border-b-4 border-red-800 flex items-center justify-center gap-2 text-white disabled:opacity-30 disabled:cursor-not-allowed">
+                    <button id="btn-blokir" onclick="judge('BLOKIR')" class="btn bg-red-600 hover:bg-red-500 py-6 rounded-2xl font-extrabold text-xl shadow-xl border-b-4 border-red-800 flex items-center justify-center gap-2 text-white">
                         <span>🚫</span> BLOKIR
                     </button>
                 </div>
@@ -377,6 +377,7 @@
     </div>
 
     <script>
+        
         // Daftar target kata brainrot/penurunan kualitas konten secara luas
         const brainrotDictionary = [
             "LOW-EFFORT", "BODOH", "FOLLOW", "JOGED", "JEDAG-JEDUG", "ROKOK"
@@ -647,48 +648,54 @@
                 return;
             }
 
-            if (currentContent.isBrainrot) {
-                // Cari tahu berapa kata brainrot yang sudah berhasil di-stabilo kuning oleh user
-                const correctHighlightsCount = userHighlightedWords.filter(item => item.isBrainrot).length;
-                const remaining = brainrotCountInText - correctHighlightsCount;
+            // Tombol Blokir sekarang SELALU aktif (tidak dikunci oleh sisa kata)
+            btnBlokir.disabled = false;
+            btnBlokir.classList.remove('opacity-30');
 
-                if (remaining > 0) {
-                    statusEl.innerText = `${remaining} INDIKATOR LAGI`;
-                    statusEl.className = "font-black text-amber-500";
-                    btnBlokir.disabled = true;
-                } else {
-                    statusEl.innerText = "TERDETEKSI";
-                    statusEl.className = "font-black text-rose-500 animate-pulse";
-                    btnBlokir.disabled = false;
-                }
+            if (currentContent.isBrainrot) {
+                // Tampilkan progress stabilo kata
+                const correctHighlightsCount = userHighlightedWords.filter(item => item.isBrainrot).length;
+                statusEl.innerText = `${correctHighlightsCount}/${brainrotCountInText} DISENSOR`;
+                statusEl.className = "font-black text-amber-500";
             } else {
-                // Jika konten aman/terbatas, stabilo tidak diperlukan dan tombol blokir dikunci
                 statusEl.innerText = "BERSIH";
                 statusEl.className = "font-black text-green-500";
-                btnBlokir.disabled = true;
             }
         }
 
         function judge(choice) {
             if (!gameActive || isPopUpActive) return; // Blokir aksi jika popup sedang menutupi layar
 
-            // Pengaman: Jika konten terbukti brainrot tapi belum selesai dianalisis, halangi player memproses
-            if (currentContent.isBrainrot) {
-                const correctHighlightsCount = userHighlightedWords.filter(item => item.isBrainrot).length;
-                if (correctHighlightsCount < brainrotCountInText && (choice === 'AMAN' || choice === 'TERBATAS')) {
-                    triggerFeedback("STABILO KATA BERBAHAYA!", "#f59e0b");
-                    return;
+            let isCorrect = false;
+            let customFeedback = "";
+
+            // Menghitung jumlah kata brainrot yang sudah distabilo dengan benar oleh user
+            const correctHighlightsCount = userHighlightedWords.filter(item => item.isBrainrot).length;
+
+            if (choice === currentContent.type) {
+                if (choice === 'BLOKIR') {
+                    // TEPAT hanya jika player sudah menstabilo SEMUA kata brainrot
+                    if (correctHighlightsCount === brainrotCountInText) {
+                        isCorrect = true;
+                    } else {
+                        isCorrect = false;
+                        customFeedback = "KURANG TELITI!"; // Kata belum distabilo semua
+                    }
+                } else {
+                    isCorrect = true;
                 }
+            } else {
+                isCorrect = false;
             }
 
             totalAnswered++;
-            if (choice === currentContent.type) {
+            if (isCorrect) {
                 correctAnswers++;
                 points += 100;
                 triggerFeedback("TEPAT!", "#4ade80");
             } else {
                 points = Math.max(0, points - 50);
-                triggerFeedback("SALAH!", "#f87171");
+                triggerFeedback(customFeedback || "SALAH!", "#f87171");
             }
             
             nextContent();
@@ -720,7 +727,7 @@
             let performanceMsg = "";
             if (accuracy >= 90) performanceMsg = "Sangat luar biasa! Internet sangat aman di tanganmu.";
             else if (accuracy >= 70) performanceMsg = "Kerja bagus. Terus tingkatkan kewaspadaanmu.";
-            else if (accuracy >= 50) performanceMsg = "Beberapa konten berbahaya lolos. Butuh fokus lebih.";
+            else if (accuracy >= 50) performanceMsg = "Beberapa konten berbahaya lolos. Autentikasi ketelitian sistem!";
             else performanceMsg = "Kinerja buruk. Kamu membiarkan internet dipenuhi konten aneh.";
 
             document.getElementById('performance-stat').innerText = performanceMsg;
