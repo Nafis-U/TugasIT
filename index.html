@@ -59,30 +59,15 @@
             transform: scale(0.95);
         }
 
-        /* Layout samping disesuaikan agar proporsional di layar lebar (3 kolom untuk mengakomodasi Buku Panduan) */
+        /* Layout samping disesuaikan agar proporsional di layar lebar (Kembali ke 2 kolom yang bersih) */
         .gameplay-layout {
             display: flex;
             flex-direction: row;
-            gap: 24px;
+            gap: 32px;
             align-items: stretch;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1150px;
             margin-top: 20px;
-        }
-
-        /* Buku Panduan Panel di sebelah kiri game */
-        .rulebook-card {
-            background: #ffffff;
-            color: #1e293b;
-            flex: 1;
-            max-width: 280px;
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-            border: 4px solid #cbd5e1;
         }
 
         /* Kartu putih asli untuk konten game */
@@ -134,7 +119,6 @@
             flex-direction: column;
             gap: 20px;
             justify-content: center;
-            max-width: 250px;
         }
 
         @keyframes slideIn {
@@ -222,6 +206,11 @@
             from { transform: scale(0.7); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
+
+        /* Desain Khusus Transisi Sidebar */
+        .sidebar-transition {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
 <body>
@@ -269,7 +258,7 @@
 
         <!-- TUTORIAL SCREEN -->
         <div id="screen-tutorial" class="screen">
-            <h2 class="text-4xl font-bold mb-4 uppercase tracking-widest text-blue-400">Protokol Keamanan</h2>
+            <h2 class="text-4xl font-bold mb-8 uppercase tracking-widest text-blue-400">Protokol Keamanan</h2>
             
             <!-- Narasi Panduan yang diminta pengguna -->
             <div class="max-w-4xl bg-slate-800/60 p-6 rounded-2xl border border-slate-700 text-slate-200 text-left mb-8 text-base leading-relaxed">
@@ -337,45 +326,53 @@
         </div>
 
         <!-- GAME SCREEN -->
-        <div id="screen-game" class="screen">
+        <div id="screen-game" class="screen relative">
+            <!-- BACKDROP OVERLAY UNTUK SENSOR SIDEBAR (GELAP & BLOKIR KLIK) -->
+            <div id="sidebar-backdrop" class="hidden absolute inset-0 bg-black/60 z-[40]" onclick="closeSidebar()"></div>
+
+            <!-- FLOATING SIDEBAR BUKU PANDUAN -->
+            <div id="game-sidebar" class="sidebar-transition absolute top-0 left-0 h-full w-80 bg-white text-slate-800 p-6 shadow-2xl z-[50] transform -translate-x-full flex flex-col border-r-4 border-slate-300">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-200 pb-2">
+                    <span class="text-sm font-bold text-red-500 uppercase tracking-wider flex items-center gap-1">
+                        <span>📖</span> Kamus Brainrot
+                    </span>
+                    <button onclick="closeSidebar()" class="text-slate-400 hover:text-slate-600 font-bold bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-lg text-sm btn">TUTUP</button>
+                </div>
+                <p class="text-xs text-slate-500 mb-4 leading-tight italic">
+                    Stabilo kata-kata di bawah ini jika terdeteksi dalam transkrip:
+                </p>
+                <div class="flex-1 overflow-y-auto pr-1">
+                    <ul id="rulebook-list" class="space-y-1.5 text-xs font-semibold text-slate-700">
+                        <!-- Kata dari dict akan diisi oleh JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- TIMER BAR -->
             <div class="timer-bar">
                 <div id="timer-progress" class="timer-progress"></div>
             </div>
             
-            <div class="absolute top-6 left-8 text-xl font-bold flex items-center gap-4 bg-slate-900/50 px-6 py-3 rounded-full border border-slate-700">
+            <div class="absolute top-6 left-8 text-xl font-bold flex items-center gap-4 bg-slate-900/50 px-6 py-3 rounded-full border border-slate-700 z-[10]">
                 <div class="text-blue-400">⏱️ <span id="time-left">90</span>s</div>
                 <div class="h-6 w-px bg-slate-700"></div>
                 <div class="text-green-400">⭐ <span id="current-points">0</span></div>
             </div>
 
-            <div class="absolute top-6 right-8 flex items-center gap-3">
+            <!-- TABS & ACTIONS KANAN ATAS -->
+            <div class="absolute top-6 right-8 flex items-center gap-4 z-[10]">
+                <button id="btn-open-sidebar" onclick="openSidebar()" class="btn bg-blue-600 hover:bg-blue-500 px-5 py-3 rounded-xl border border-blue-700 font-bold text-sm text-white flex items-center gap-2 shadow-lg">
+                    <span>📖</span> BUKA KAMUS
+                </button>
                 <div class="bg-slate-900/50 px-5 py-3 rounded-xl border border-slate-700 font-bold text-sm text-yellow-400">
                     SENSING: <span id="detection-status" class="font-black">EVALUASI</span>
                 </div>
             </div>
 
+            <!-- LAYOUT GAMEPLAY (2 KOLOM BERSIH) -->
             <div class="gameplay-layout">
-                <!-- Sisi Kiri Gameplay: Buku Panduan Sensor (Brainrot Dictionary) -->
-                <div class="rulebook-card">
-                    <div class="flex items-center gap-2 mb-3 border-b border-slate-200 pb-2">
-                        <span class="text-xs font-bold text-red-500 uppercase tracking-wider flex items-center gap-1">
-                            <span>📖</span> Kamus Brainrot
-                        </span>
-                    </div>
-                    <p class="text-[10px] text-slate-500 mb-3 leading-tight italic">
-                        Cari dan stabilo kata-kata berikut jika muncul dalam transkrip:
-                    </p>
-                    <div class="flex-1 overflow-y-auto pr-1">
-                        <ul id="rulebook-list" class="space-y-1.5 text-xs font-semibold text-slate-700">
-                            <!-- Kata-kata dari dictionary akan diisi otomatis lewat JS -->
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Kolom Tengah Gameplay: Kartu Konten -->
                 <div id="content-display" class="content-card slide-in-new"></div>
 
-                <!-- Sisi Kanan Gameplay: Tombol Tindakan -->
                 <div class="button-sidebar">
                     <button id="btn-aman" onclick="judge('AMAN')" class="btn bg-green-600 hover:bg-green-500 py-6 rounded-2xl font-extrabold text-xl shadow-xl border-b-4 border-green-800 flex items-center justify-center gap-2 text-white">
                         <span>✅</span> AMAN
@@ -441,10 +438,9 @@
         </div>
     </div>
 
-    <script>
-        const WEB_APP_URL = "URL_WEB_APP_KAMU"; 
+    <script> 
 
-       // Daftar target kata brainrot/penurunan kualitas konten secara luas
+        // Daftar target kata brainrot/penurunan kualitas konten secara luas
         const brainrotDictionary = [
             "LOW-EFFORT", "BODOH", "FOLLOW", "JOGED", "JEDAG-JEDUG", "ROKOK"
         ];
@@ -489,6 +485,7 @@
         let eventTimestamps = [];
         let activePopups = 0;
         let isPopUpActive = false;
+        let isSidebarOpen = false;
 
         const logoHTML = `
             <div class="flex items-center gap-2 mb-4 border-b border-slate-200 pb-3">
@@ -504,9 +501,9 @@
             const listEl = document.getElementById('rulebook-list');
             if (listEl) {
                 listEl.innerHTML = brainrotDictionary.map(word => `
-                    <li class="flex items-center gap-1.5 py-0.5 border-b border-slate-100 last:border-0">
+                    <li class="flex items-center gap-1.5 py-1 border-b border-slate-100 last:border-0 text-sm">
                         <span class="text-red-500 text-[10px]">■</span>
-                        <span class="tracking-wide text-slate-700">${word}</span>
+                        <span class="tracking-wide text-slate-700 font-bold">${word}</span>
                     </li>
                 `).join('');
             }
@@ -527,12 +524,40 @@
             gameActive = false;
             if (timerInterval) clearInterval(timerInterval);
             clearAllPopups();
+            closeSidebar();
             showScreen('screen-lobby'); 
         }
         
         function showTutorial() { showScreen('screen-tutorial'); }
         
         function showCredits() { showScreen('screen-credits'); }
+
+        // Fungsi Buka-Tutup Sidebar & Kunci Layar
+        function openSidebar() {
+            if (!gameActive || isPopUpActive) return;
+            isSidebarOpen = true;
+            document.getElementById('sidebar-backdrop').classList.remove('hidden');
+            document.getElementById('game-sidebar').classList.remove('-translate-x-full');
+            
+            // Kunci tombol-tombol utama di balik backdrop
+            document.getElementById('btn-aman').classList.add('opacity-30', 'pointer-events-none');
+            document.getElementById('btn-terbatas').classList.add('opacity-30', 'pointer-events-none');
+            document.getElementById('btn-blokir').classList.add('opacity-30', 'pointer-events-none');
+        }
+
+        function closeSidebar() {
+            isSidebarOpen = false;
+            document.getElementById('sidebar-backdrop').classList.add('hidden');
+            document.getElementById('game-sidebar').classList.add('-translate-x-full');
+            
+            // Kembalikan interaksi jika game sedang aktif & tidak ada pop-up
+            if (gameActive && !isPopUpActive) {
+                document.getElementById('btn-aman').classList.remove('opacity-30', 'pointer-events-none');
+                document.getElementById('btn-terbatas').classList.remove('opacity-30', 'pointer-events-none');
+                document.getElementById('btn-blokir').classList.remove('opacity-30', 'pointer-events-none');
+                updateLockStatus();
+            }
+        }
 
         function clearAllPopups() {
             isPopUpActive = false;
@@ -557,6 +582,7 @@
             correctAnswers = 0;
             gameActive = true;
             clearAllPopups();
+            closeSidebar();
 
             // Membuat 3 penanda waktu acak unik untuk event pop-up (antara detik 15 sampai 80)
             eventTimestamps = [];
@@ -591,6 +617,9 @@
 
         // Fungsi pemicu serangan spam 4 pop-up acak (Ukuran diperbesar menjadi w-96)
         function triggerRandomSpamEvent() {
+            // Tutup sidebar jika sedang terbuka saat pop-up menyerang
+            closeSidebar();
+
             isPopUpActive = true;
             activePopups = 4;
 
@@ -705,7 +734,7 @@
         }
 
         function toggleWordHighlight(element) {
-            if (!gameActive || isPopUpActive) return; // Kunci jika sedang ada serangan spam popup
+            if (!gameActive || isPopUpActive || isSidebarOpen) return; // Kunci jika sedang ada serangan spam popup atau sidebar terbuka
 
             const isBrainrot = element.getAttribute('data-brainrot') === "true";
             const index = element.getAttribute('data-index');
@@ -739,6 +768,9 @@
             btnBlokir.disabled = false;
             btnBlokir.classList.remove('opacity-30');
 
+            // Pengaman (Guard Clause) untuk mencegah error isBrainrot dari null saat inisialisasi awal
+            if (!currentContent) return;
+
             if (currentContent.isBrainrot) {
                 // Tampilkan progress stabilo kata
                 const correctHighlightsCount = userHighlightedWords.filter(item => item.isBrainrot).length;
@@ -751,7 +783,7 @@
         }
 
         function judge(choice) {
-            if (!gameActive || isPopUpActive) return; // Blokir aksi jika popup sedang menutupi layar
+            if (!gameActive || isPopUpActive || isSidebarOpen) return; // Blokir aksi jika popup atau sidebar sedang menutupi layar
 
             let isCorrect = false;
             let customFeedback = "";
@@ -809,6 +841,7 @@
             gameActive = false;
             clearInterval(timerInterval);
             clearAllPopups(); // Singkirkan sisa popup di akhir
+            closeSidebar();
             showScreen('screen-result');
 
             const accuracy = totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0;
